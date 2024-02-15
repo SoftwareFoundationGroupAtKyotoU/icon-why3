@@ -169,7 +169,8 @@ module E = struct
     let p =
       pat
       @@ Ptuple
-           (List.init m (fun i -> pat @@ Pvar (ident @@ Format.sprintf "_x%d" i)))
+           (List.init m (fun i ->
+                pat @@ Pvar (ident @@ Format.sprintf "_x%d" i)))
     in
     let e =
       expr
@@ -536,10 +537,7 @@ module Generator (D : Desc) = struct
               xfer_cstr_ident,
               [
                 (Loc.dummy_position, None, false, gparam_pty);
-                ( Loc.dummy_position,
-                  None,
-                  false,
-                  Sort.pty_of_sort Sort.S_mutez );
+                (Loc.dummy_position, None, false, Sort.pty_of_sort Sort.S_mutez);
                 ( Loc.dummy_position,
                   None,
                   false,
@@ -927,15 +925,16 @@ let convert_mlw (tzw : Tzw.t) =
   let module G = Generator (struct
     let desc = { d_contracts; d_whyml = [] }
   end) in
-  let ty_defs = Dtype [gen_gparam epp; G.operation_ty_def] in
+  let ty_defs = Dtype [ gen_gparam epp; G.operation_ty_def ] in
   return
-  @@ Modules [ ident "Top",
-               tzw.tzw_preambles
-               @ (ty_defs :: ds)
-               @ [ G.ctx_ty_def; G.ctx_wf_def ]
-               @ tzw.tzw_postambles @ invariants
-               @ [ Drec (G.unknown_func_def :: G.func_def) ]
-             ]
+  @@ Modules
+       [
+         ( ident "Top",
+           tzw.tzw_preambles @ (ty_defs :: ds)
+           @ [ G.ctx_ty_def; G.ctx_wf_def ]
+           @ tzw.tzw_postambles @ invariants
+           @ [ Drec (G.unknown_func_def :: G.func_def) ] );
+       ]
 
 (* let file desc = *)
 (*   let module G = Generator (struct *)
@@ -957,6 +956,6 @@ let from_mlw mlw =
 let from_file fn =
   In_channel.with_open_text fn (fun ic ->
       let lexbuf = Lexing.from_channel ic in
-      Lexing.set_filename lexbuf fn ;
+      Lexing.set_filename lexbuf fn;
       let f = Lexer.parse_mlw_file lexbuf in
       from_mlw f)

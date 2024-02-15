@@ -51,6 +51,8 @@ jobs:
 
       - run: opam exec -- why3 config detect
 
+      - run: opam exec -- dune build @fmt
+
       - run: opam exec -- dune build
 
       - run: opam exec -- dune runtest
